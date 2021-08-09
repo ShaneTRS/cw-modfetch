@@ -1,4 +1,5 @@
 https://github.com/ChrisMiuchiz/Cube-World-Mod-Launcher/releases/download/1.0.0-1_7.1/CubeModLoader.fip  CubeModLoader.fip
+Unknown                                                                                                  dict_en.xml
 https://github.com/Paroyer/BetterBiomes-FanUpdate/releases/download/7.1/BetterBiomes.dll                 Mods/BetterBiomes.dll
 https://github.com/ParanormalVibe/BrightNights/releases/download/1.2/BrightNight.zip                     Mods/BrightNight.cwmod
 https://github.com/ChrisMiuchiz/Cube-World-Building-Mod/releases/download/1.0.0-1_7.1/BuildingMod.dll    Mods/BuildingMod.dll
@@ -6,7 +7,7 @@ https://github.com/ChrisMiuchiz/Cube-World-Chat-Mod/releases/download/1.0.0-1_7.
 https://github.com/ChrisMiuchiz/Cube-World-Commands-Mod/releases/download/1.0.0-1_7.1/CommandsMod.zip    Mods/CommandsMod.dll
 https://github.com/thetrueoneshots/CubeMegaMod/releases/download/v1.5.7/CubeMegaMod-v1.5.7.dll           Mods/CubeMegaMod-v1.5.7.dll
 https://github.com/LockManipulator/Cube-Travel/raw/release/LichModsCubeTravel.dll                        Mods/LichModsCubeTravel.dll
-https://github.com/LockManipulator/Cubegression-Light/raw/Release/LichModsCubegression.dll               Mods/LichModsCubegression.dll
+Private copy from Nichiren                                                                               Mods/LichModsCubegression_v.2.2.dll
 https://github.com/LockManipulator/Guardian-Fix/raw/release/LichModsGuardianFix.dll                      Mods/LichModsGuardianFix.dll
 https://github.com/ParanormalVibe/WeaponXP/releases/download/1.2/WeaponXP.zip                            Mods/WeaponXP.cwmod
 https://github.com/ParanormalVibe/Better-Progression/releases/download/1.2/BetterProgression.zip         Mods/cubemod.cwmod

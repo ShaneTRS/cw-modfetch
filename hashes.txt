@@ -1,6 +1,7 @@
 # get a new cubeworld.exe hash
 e3ea8684a9e4334e2285f0fff314d576  cubeworld.exe
 d3574672108d1e2acbb8fbef1f5a06e2  CubeModLoader.fip
+9da8641ec9a8e6d74df97172252708bf  dict_en.xml
 8a4a53acbe9739c2db22f3ebc86e84e5  Mods/BetterBiomes.dll
 97fff3defccbc914f4d76d71216b7ce3  Mods/BrightNight.cwmod
 49f91dd8fa547602c492c8a0ea29c882  Mods/BuildingMod.dll
@@ -8,7 +9,7 @@ bf3e5556882c0e66f36214bb213b9262  Mods/ChatMod.dll
 a1954dfc97e97387e6f6f30705c63f06  Mods/CommandsMod.dll
 4dd3b3a3ecf64a81d1684ff9659a0754  Mods/CubeMegaMod-v1.5.7.dll
 3dc5dc354cf00b5eea38250ff0837a7d  Mods/LichModsCubeTravel.dll
-9835fd6818ad9d8a41005218100dd317  Mods/LichModsCubegression.dll
+28370d9fe99ab1fe80419e2277635e5d  Mods/LichModsCubegression_v.2.2.dll
 bed9bc064174609741d757f405491cfc  Mods/LichModsGuardianFix.dll
 448aa94b5bcfe3782cfdcc29e0c2d4c7  Mods/WeaponXP.cwmod
 841d316b9edbb61f0a03c2c8e19da73b  Mods/cubemod.cwmod
