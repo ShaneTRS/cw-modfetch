@@ -8,6 +8,8 @@ MsgBox, 16, CW-ModFetch, Put this installer in Cube World's game directory befor
 ExitApp
 }
 
+UrlDownloadToFile, https://github.com/ShaneTRS/cw-modfetch/raw/main/cw-modfetch.ini, cw-modfetch.ini
+
 UpdateGUI(Controls,State,Force:=""){
 Gui, Font, % (State) ? ("Strikethrough") : ("Normal")
 Loop % Controls.Length(){
@@ -17,59 +19,87 @@ If (Value = State) or Force
   GuiControl, Font, %Control%
 }
 }
-
-GuiSection(Title,Mods,Options:="",Checked:=""){
+GuiSection(Title,Choices,Options:="",Checked:=""){
 Gui, Font, s12 Underline
 Gui, Add, Text, Section %Options%, %Title%
 Gui, Font, s12 Normal
-Loop % Mods.Length()
-  Gui, Add, Checkbox, % Checked " gUpdate v"Mods[A_Index],% Mods[A_Index]
+Loop % Choices.Length()
+  Gui, Add, Checkbox, % Checked " gUpdate v"Choices[A_Index],% Choices[A_Index]
 }
 
-Mods := ["CubeModLoader.fip", "CubeMegaMod-v1.5.7.dll", "LichModsCubegression_v2.2.dll", "LichModsCubeTravel.dll", "cubemod.cwmod", "LichModsCubePatch.dll", "LichModsGuardianFix.dll", "ChatMod.dll", "BetterBiomes.dll", "BrightNight.cwmod", "BuildingMod.dll", "CommandsMod.dll", "dict_en.xml", "LichModsPvP.dll", "WeaponXP.cwmod"]
+ModStates := []
+ModVars(){
+global
+local Temp
+Loop % Mods.Length(){
+  Temp := Mods[A_Index]
+  ModStates[A_Index] := %Temp%
+}
+}
+
+IniRead, Mods, cw-modfetch.ini, Mods, Variables
+Mods := StrSplit(Mods,",")
+
 Gui, New,, CW-ModFetch
 Gui, Font,, Segoe UI
-GuiSection("Modloader", ["CubeModLoader"],, "Checked")
-GuiSection("Progression", ["CubeMegaMod", "Cubegression", "CubeTravel", "CubeMod"])
-GuiSection("Fixes", ["CubePatch", "GuardianFix", "ChatMod"], "ys", "Checked")
-GuiSection("World", ["BetterBiomes","BrightNight", "BuildingMod"], "ys")
-GuiSection("Other", ["CommandsMod", "PetFoodDict", "LichPvP"], "xm y+38")
-GuiSection("Unstable", ["WeaponXP"], "ys x+68")
-Gui, Add, Button, x+50 ys+35 w90 h30 gClean, &Clean
-Gui, Add, Button, w90 h30 gSubmit, &Install
+ModVars()
+IniRead, GuiSections, cw-modfetch.ini, GUI Sections
+GuiSections := StrSplit(GuiSections, "`n")
+Loop % GuiSections.Length(){
+  GuiSection := StrSplit(GuiSections[A_Index], ["=",";"])
+  GuiChoices := StrSplit(GuiSection[2],",")
+  GuiSection(GuiSection[1],GuiChoices,GuiSection[3],GuiSection[4])
+}
+IniRead, GuiButtons, cw-modfetch.ini, GUI Buttons
+GuiButtons := StrSplit(GuiButtons, "`n")
+Loop % GuiButtons.Length(){
+  GuiButton := StrSplit(GuiButtons[A_Index], "=")
+  Gui, Add, Button,% GuiButton[2],% GuiButton[1]
+}
 Gui, Show, AutoSize Center
 
 Update:
 Gui, Submit, NoHide
-Incompatibility := 0
-UpdateGUI(["CubeMegaMod","Cubegression","CubeMod","BetterBiomes"],0,1)
-If CubeMegaMod
-  If (Cubegression or CubeMod or BetterBiomes){
-	UpdateGUI(["CubeMegaMod","Cubegression","CubeMod","BetterBiomes"],1)
-	Incompatibility := 1
-  }
-If (Cubegression and CubeMod){
-  UpdateGUI(["Cubegression","CubeMod"],1)
-  Incompatibility := 1
+Incompatible := 0
+UpdateGUI(Mods,0,1)
+IniRead, Incompatibilities, cw-modfetch.ini, Incompatibilities
+Incompatibilities := StrSplit(Incompatibilities, "`n")
+Loop % Incompatibilities.Length(){
+  Transform, Temp, Deref, % Incompatibilities[A_Index]
+  TempText := Incompatibilities[A_Index]
+  Incompatibility := StrSplit(Temp, "=")
+  IncompatibilityText := StrSplit(TempText, "=")
+  Conflicts := Incompatibility[2]
+  ConflictsText := StrSplit(StrReplace(IncompatibilityText[2],`%),",")
+  ConflictsText.Push(StrReplace(IncompatibilityText[1],`%))
+  If True in %Conflicts%
+    If Incompatibility[1] {
+	  UpdateGUI(ConflictsText,1)
+      Incompatible := 1
+	}
 }
 Return
 
 Submit:
-If Incompatibility
+If Incompatible
   MsgBox,17, CW-ModFetch, Warning: You've installed two or more mods that have known incompatibilities! Only continue if you know what you're doing.`n`nIncompatibilities with CubeMegaMod can typically be solved by disabling modules in-game with '/mod'
 IfMsgBox Cancel
   Goto, Update
+
 Gui, Submit
 Gui, Destroy
 Gui, New,, CW-ModFetch
 Gui, Font, s12 Normal, Segoe UI
 Gui, Add, Text,, Downloading and installing mods...
 Gui, Show, AutoSize Center
-ModsEnabled := [CubeModLoader, CubeMegaMod, Cubegression, CubeTravel, CubeMod, CubePatch, GuardianFix, ChatMod, BetterBiomes, BrightNight, BuildingMod, CommandsMod, PetFoodDict, LichPvP, WeaponXP]
+
+IniRead, ModFiles, cw-modfetch.ini, Mods, Files
+ModFiles := StrSplit(ModFiles,",")
+ModVars()
 FileCreateDir,Mods
-Loop % Mods.Length()
-  If ModsEnabled[A_Index]
-    UrlDownloadToFile, % "https://github.com/ShaneTRS/cw-modfetch/raw/main/local-repo/" Mods[A_Index], % "Mods/"Mods[A_Index]
+Loop % ModFiles.Length()
+  If ModStates[A_Index]
+    UrlDownloadToFile, % "https://github.com/ShaneTRS/cw-modfetch/raw/main/local-repo/" ModFiles[A_Index], % "Mods/"ModFiles[A_Index]
 FileMove, dict_en.xml, dict_en.xml.old
 FileMove, Mods/dict_en.xml, ., 1
 FileMove, Mods/CubeModLoader.fip, ., 1
@@ -88,8 +118,7 @@ Gui, Destroy
 MsgBox,64, CW-ModFetch, All cleaned up!`nBacked up and disabled mod and save files.
 Reload
 
+^\::Reload
 #IfWinActive CW-ModFetch
 ::shanewuzhere::
 Run, https://cdn.discordapp.com/emojis/847295798315450408.png
-
-^\::Reload
