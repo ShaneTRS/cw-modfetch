@@ -1,4 +1,12 @@
-A simple AutoHotkey script that will hopefully help people install Cube World mods easily
+This is a tool that will hopefully help people install Cube World mods easier!
+It automatically grabs files from this repository, so you shouldn't have to update this tool very often, if at all.
+
+It currently downloads the following each time it runs:
+- Mod list (files and names)
+- Mod incompatibilities
+- GUI components (sections and buttons)
+
+This tool only works with an internet connection, it is online-only.
 
 The actual script is `cw-modfetch.ahk`
 But there are three compiled versions in the `build` folder
