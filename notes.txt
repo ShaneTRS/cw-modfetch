@@ -1,0 +1,10 @@
+Freakishly inefficient and stupid incompatibility checker
+    It goes through every mod and checks for incompatibilities, even if the base mod it's checking for isn't even enabled
+        This should only check for incompatiiblities for enabled mods
+    It also updates the strikethrough status of *every* choice available on the GUI, not even just ones that can actually have incompatibilities
+        This at the very least should only update the status of mods that can be incompatible with other mods
+
+The download management is also freakishly inefficient and stupid
+    Currently, it checks each mod to see if it should be downloaded
+    It should instead add each file to a queue, and go through that instead
+    Super optimistically, it could go through that queue asynchronously?

@@ -103,7 +103,8 @@ Loop % ModFiles.Length()
 FileMove,dict_en.xml,dict_en.xml.old
 FileMove,Mods/dict_en.xml,.,1
 FileMove,Mods/CubeModLoader.fip,.,1
-
+Gui,Destroy
+MsgBox,64,CW-ModFetch,Installation finished!
 GuiClose:
 ExitApp
 
@@ -115,7 +116,7 @@ FileMoveDir, Mods, Mods.old
 FileRemoveDir, Save.old, 1
 FileMoveDir, Save, Save.old
 Gui, Destroy
-MsgBox, 64, CW-ModFetch, All cleaned up!`nBacked up and disabled mod and save files.
+MsgBox,64,CW-ModFetch,All cleaned up!`nBacked up and disabled mod and save files.
 Reload
 
 #IfWinActive CW-ModFetch
