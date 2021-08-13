@@ -8,25 +8,44 @@ If !FileExist("cubeworld.exe"){
 }
 
 UrlDownloadToFile,https://github.com/ShaneTRS/cw-modfetch/raw/main/cw-modfetch.ini,cw-modfetch.ini
-IniRead,ModFiles,cw-modfetch.ini,Mods,Files
-IniRead,Mods,cw-modfetch.ini,Mods,Variables
-Mods:=StrSplit(Mods,",")
-IniRead,GuiSections,cw-modfetch.ini,GUI Sections
+IniRead,GuiTabs,cw-modfetch.ini,GUI Tabs
 IniRead,GuiButtons,cw-modfetch.ini,GUI Buttons
 IniRead,Incompat,cw-modfetch.ini,Incompatibilities
 Incompatibilities:=0
-ModStates:=[]
 
-GuiSection(Section){
-	Gui,Font,s12 Underline
-	Gui,Add,Text,% "Section "Section[3],% Section[1]
-	Gui,Font,s12 Normal
-	Loop,Parse,% Section[2],`,
-		Gui,Add,Checkbox,% Section[4]" gUpdate v"A_LoopField,%A_LoopField%
+ModVars(){
+	global Mods
+	IniRead,TempMods,cw-modfetch.ini,Mods
+	Loop,Parse,TempMods,`n
+	{
+		Temp:=% "Temp"StrSplit(A_LoopField,"=")[1]
+		%Temp%:=% StrSplit(A_LoopField,"=")[2]
+	}
+	TempVar:=StrSplit(TempVar,",")
+	TempFile:=StrSplit(TempFile,",")
+	TempState:=StrSplit(TempState,",")
+	TempName:=StrSplit(TempName,",")
+	TempDesc:=StrSplit(TempDesc,";")
+	Mods:=[]
+	Loop % TempVar.Count(){
+		Mods[A_Index]:={}
+		Mods[A_Index].Var:=TempVar[A_Index]
+		Mods[A_Index].File:=TempFile[A_Index]
+		Mods[A_Index].State:=TempState[A_Index]
+		Mods[A_Index].Name:=TempName[A_Index]
+		Mods[A_Index].Desc:=TempDesc[A_Index]
+	}
 }
+ModVars()
 
 UpdateGUI(Controls,State){
-	global Incompatibilities
+	global Mods,Incompatibilities
+	Gui,Font,s10
+	If(Controls="All"){
+		Controls:=[]
+		Loop % Mods.Length()
+			Controls.Push(Mods[A_Index].Var)
+	}
 	Gui,Font,% (State)?("Strikethrough"):("Normal")
 	If !Incompatibilities
 		Gui,Font,Normal
@@ -37,56 +56,65 @@ UpdateGUI(Controls,State){
 	}
 }
 
-ModVars(){
-	global
-	Loop % Mods.Length() {
-		Temp := Mods[A_Index]
-		ModStates[A_Index]:=%Temp%
+SubmitVars(){
+	global Mods
+	Gui,Submit,NoHide
+	Loop % Mods.Length(){
+		Temp:=Mods[A_Index].Var
+		Mods[A_Index].State:=%Temp%
 	}
 }
 
-ModVars()
 Gui,New,,CW-ModFetch
-Gui,Font,,Segoe UI
-Loop,Parse,GuiSections,`n
-	GuiSection(StrSplit(A_LoopField,["=",";"]))
+Gui,Font,s10 Normal,Segoe UI
+Loop,Parse,GuiTabs,`n
+	Temp:=% Temp "|" StrSplit(A_LoopField,"=")[1]
+Gui,Add,Tab3,-Wrap,% SubStr(Temp,2)
+Loop,Parse,GuiTabs,`n
+{
+	Gui,Tab,% StrSplit(A_LoopField,"=")[1]
+	CurrentTab:=A_LoopField
+	CurrentTabOptions:=StrSplit(CurrentTab,"=")[2]
+	Loop,Parse,CurrentTabOptions,`,
+	{
+		Gui,Font,s12
+		If Mods[A_LoopField]
+			Gui,Add,Checkbox,% "Checked" Mods[A_LoopField].State " gUpdate v" Mods[A_LoopField].Var,% Mods[A_LoopField].Name
+		Gui,Font,s8
+		Gui,Add,Text,w287,% Mods[A_LoopField].Desc
+	}
+}
+Gui,Tab
 Loop,Parse,GuiButtons,`n
 	Gui,Add,Button,% StrSplit(A_LoopField,"=")[2],% StrSplit(A_LoopField,"=")[1]
-Gui,Font,s8
-Gui,Add,Text,HwndGuiMessage xm,*AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!
-Gui,Font,s12
 Gui,Show,AutoSize Center
 
 Update:
 IncompatStore:=Incompatibilities
-Gui,Submit,NoHide
-GuiControl,Text,%GuiMessage%,*Enable incompatibilities to allow incompatible mods to be installed together
-If Incompatibilities and !IncompatStore=Incompatibilities
-	MsgBox,273,CW-ModFetch,Only continue if you know what you're doing!
-IfMsgBox Cancel
+SubmitVars()
+If Incompatibilities and IncompatStore!=Incompatibilities
+	MsgBox,20,Cw-ModFetch,Are you sure you want to allow incompatibilities?
+IfMsgBox No
 	GuiControl,,Incompatibilities,0
 Gui,Submit,NoHide
-UpdateGUI(Mods,0)
+UpdateGUI("All",0)
 Loop,Parse,Incompat,`n
 {
-	BaseIncompat:=StrSplit(A_LoopField,"=")[1]
-	If (%BaseIncompat%)
+	If Mods[StrSplit(A_LoopField,"=")[1]].State
 		UpdateGUI(StrSplit(StrSplit(A_LoopField,"=")[2],","),1)
-}
-Return
+}Return
 
 Submit:
-Gui,Submit
+SubmitVars()
 Gui,Destroy
 Gui,New,,CW-ModFetch
 Gui,Font,s12 Normal,Segoe UI
 Gui,Add,Text,,Downloading and installing mods...
 Gui,Show,AutoSize Center
-ModVars()
 FileCreateDir,Mods
-Loop,Parse,ModFiles,`,
-	If ModStates[A_Index]
-		UrlDownloadToFile,https://github.com/ShaneTRS/cw-modfetch/raw/main/local-repo/%A_LoopField%,Mods/%A_LoopField%
+Loop % Mods.Length()
+	If Mods[A_Index].State
+		UrlDownloadToFile,% "https://github.com/ShaneTRS/cw-modfetch/raw/main/local-repo/" Mods[A_Index].File,% "Mods/" Mods[A_Index].File
 FileMove,dict_en.xml,dict_en.xml.old
 FileMove,Mods/dict_en.xml,.,1
 FileMove,Mods/CubeModLoader.fip,.,1
